@@ -2,20 +2,33 @@
 
 void Alarm::begin()
 {
-    _armed = false;
+    _state = AlarmState::Disarmed;
 }
 
 void Alarm::arm()
 {
-    _armed = true;
+    _state = AlarmState::Armed;
 }
 
 void Alarm::disarm()
 {
-    _armed = false;
+    _state = AlarmState::Disarmed;
+}
+
+void Alarm::toggle()
+{
+    if (_state == AlarmState::Disarmed)
+        arm();
+    else
+        disarm();
+}
+
+AlarmState Alarm::getState() const
+{
+    return _state;
 }
 
 bool Alarm::isArmed() const
 {
-    return _armed;
+    return (_state == AlarmState::Armed);
 }

@@ -3,9 +3,10 @@
 #include "Display.h"
 #include "Sensor.h"
 #include "Button.h"
+#include "Alarm.h"
 
 Display display;
-
+Alarm alarm;
 Sensor door(PIN_DOOR);
 Sensor pir(PIN_PIR);
 
@@ -34,20 +35,29 @@ void setup()
     buttonMenu.begin();
 
     Logger::info("Botones inicializados");
+    alarm.begin();
 }
 
 void loop()
 {
-    buttonArm.update();
-    buttonMenu.update();
 
-if (buttonArm.wasPressed())
+  buttonArm.update();
+buttonMenu.update();
+    if(buttonArm.wasPressed())
 {
-    Logger::info("Boton ARM");
-}
+    alarm.toggle();
 
-if (buttonMenu.wasPressed())
-{
-    Logger::info("Boton MENU");
+    if(alarm.isArmed())
+    {
+        Logger::info("Sistema ARMADO");
+
+        display.showStatus("ARMADA");
+    }
+    else
+    {
+        Logger::info("Sistema DESARMADO");
+
+        display.showStatus("DESARMADA");
+    }
 }
 }

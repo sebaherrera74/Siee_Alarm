@@ -1,6 +1,12 @@
 #ifndef ALARM_H
 #define ALARM_H
 
+enum class AlarmState
+{
+    Disarmed,
+    Armed
+};
+
 class Alarm
 {
 public:
@@ -11,11 +17,15 @@ public:
 
     void disarm();
 
+    void toggle();
+
+    AlarmState getState() const;
+
     bool isArmed() const;
 
 private:
 
-    bool _armed;
+    AlarmState _state;
 };
 
 #endif

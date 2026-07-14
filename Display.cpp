@@ -37,7 +37,7 @@ void Display::showStatus(const char *status)
     _display.setTextSize(2);
     _display.setCursor(0,0);
 
-    _display.println("HOLA");
+    _display.println(status);
 
     _display.display();
 }
