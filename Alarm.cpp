@@ -1,32 +1,21 @@
 #include "Alarm.h"
 
-bool Alarm::begin()
+void Alarm::begin()
 {
-    _state = DISARMED;
-    return true;
-}
-
-void Alarm::update()
-{
-
+    _armed = false;
 }
 
 void Alarm::arm()
 {
-    _state = ARMED;
+    _armed = true;
 }
 
 void Alarm::disarm()
 {
-    _state = DISARMED;
+    _armed = false;
 }
 
-void Alarm::trigger()
+bool Alarm::isArmed() const
 {
-    _state = ALARM_TRIGGERED;
-}
-
-AlarmState Alarm::getState()
-{
-    return _state;
+    return _armed;
 }

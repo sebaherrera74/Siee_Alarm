@@ -39,4 +39,12 @@ constexpr uint8_t PIN_PIR  = 27;
 #define PIN_LED_RED     2
 #define PIN_LED_GREEN   4
 
+
+//==================================================
+// Botones
+//==================================================
+
+constexpr uint8_t PIN_BUTTON_ARM  = 33;
+constexpr uint8_t PIN_BUTTON_MENU = 32;
+
 #endif

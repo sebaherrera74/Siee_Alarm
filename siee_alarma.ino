@@ -2,12 +2,16 @@
 #include "Logger.h"
 #include "Display.h"
 #include "Sensor.h"
+#include "Button.h"
 
 Display display;
 
 Sensor door(PIN_DOOR);
 Sensor pir(PIN_PIR);
 
+Button buttonArm(PIN_BUTTON_ARM);
+
+Button buttonMenu(PIN_BUTTON_MENU);
 void setup()
 {
     Logger::begin();
@@ -25,28 +29,25 @@ void setup()
     pir.begin();
 
     Logger::info("Sensores inicializados");
+
+    buttonArm.begin();
+    buttonMenu.begin();
+
+    Logger::info("Botones inicializados");
 }
 
 void loop()
 {
-    door.update();
-    pir.update();
+    buttonArm.update();
+    buttonMenu.update();
 
-    if (door.hasChanged())
-    {
-        if (door.isActive())
-            Logger::warning("Puerta ABIERTA");
-        else
-            Logger::info("Puerta CERRADA");
-    }
+if (buttonArm.wasPressed())
+{
+    Logger::info("Boton ARM");
+}
 
-    if (pir.hasChanged())
-    {
-        if (pir.isActive())
-            Logger::warning("Movimiento detectado");
-        else
-            Logger::info("Sin movimiento");
-    }
-
-    delay(50);
+if (buttonMenu.wasPressed())
+{
+    Logger::info("Boton MENU");
+}
 }

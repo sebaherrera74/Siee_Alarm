@@ -1,33 +1,21 @@
 #ifndef ALARM_H
 #define ALARM_H
 
-enum AlarmState
-{
-    DISARMED,
-    EXIT_DELAY,
-    ARMED,
-    ALARM_TRIGGERED
-};
-
 class Alarm
 {
 public:
 
-    bool begin();
-
-    void update();
+    void begin();
 
     void arm();
 
     void disarm();
 
-    void trigger();
-
-    AlarmState getState();
+    bool isArmed() const;
 
 private:
 
-    AlarmState _state;
+    bool _armed;
 };
 
 #endif
