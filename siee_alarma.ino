@@ -1,24 +1,28 @@
 #include "config.h"
-#include "Alarm.h"
+#include "Logger.h"
+#include "Display.h"
 
-Alarm alarm;
+Display display;
 
 void setup()
 {
-    Serial.begin(115200);
+    Logger::begin();
 
-    Serial.println();
-    Serial.println("==========================");
-    Serial.println(PROJECT_NAME);
-    Serial.println(VERSION);
-    Serial.println("==========================");
+    Logger::info("Iniciando...");
 
-    alarm.begin();
+    if(display.begin())
+    {
+        Logger::info("Display OK");
+    }
+    else
+    {
+        Logger::error("Display NO encontrado");
+    }
 
-    Serial.println("Sistema iniciado.");
+    display.showStatus("DESARMADA");
 }
 
 void loop()
 {
-    alarm.update();
+
 }
