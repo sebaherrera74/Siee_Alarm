@@ -47,4 +47,10 @@ constexpr uint8_t PIN_PIR  = 27;
 constexpr uint8_t PIN_BUTTON_ARM  = 33;
 constexpr uint8_t PIN_BUTTON_MENU = 32;
 
+//==================================================
+// Tiempos
+//==================================================
+
+constexpr uint16_t EXIT_DELAY_SEC = 20;
+
 #endif

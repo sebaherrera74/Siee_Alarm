@@ -45,38 +45,47 @@ void setup()
 
 void loop()
 {
-    // Actualizar botones
+    // Entradas
     buttonArm.update();
     buttonMenu.update();
 
-    // Actualizar sensores
     door.update();
     pir.update();
 
-    // Botón ARMAR / DESARMAR
+    // Lógica
+    alarm.update();
+
     if (buttonArm.wasPressed())
     {
         alarm.toggle();
-
-        if (alarm.isArmed())
-        {
-            Logger::info("Sistema ARMADO");
-        }
-        else
-        {
-            Logger::info("Sistema DESARMADO");
-        }
     }
 
-    // Actualizar pantalla
-    display.showStatus(
-        alarm.isArmed(),
-        door.isActive(),
-        pir.isActive()
-    );
+    // Interfaz
+    switch (alarm.getState())
+    {
+        case AlarmState::Disarmed:
 
-    if (testTimer.expired())
-{
-    Logger::info("Tiempo cumplido");
-}
+            display.showStatus(
+                false,
+                door.isActive(),
+                pir.isActive());
+            break;
+
+        case AlarmState::ExitDelay:
+
+            display.showExitDelay(
+                alarm.exitDelayRemaining());
+            break;
+
+        case AlarmState::Armed:
+
+            display.showStatus(
+                true,
+                door.isActive(),
+                pir.isActive());
+            break;
+
+        default:
+            break;
+    }
 }

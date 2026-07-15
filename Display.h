@@ -15,7 +15,7 @@ public:
    void showStatus(bool armed,
                     bool doorOpen,
                     bool pirActive);
-
+   void showExitDelay(uint8_t seconds);
 private:
 
     Adafruit_SSD1306 _display =
