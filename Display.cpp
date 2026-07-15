@@ -29,15 +29,42 @@ void Display::showSplash()
     _display.display();
 }
 
-void Display::showStatus(const char *status)
+void Display::showStatus(bool armed,
+                         bool doorOpen,
+                         bool pirActive)
 {
     _display.clearDisplay();
 
     _display.setTextColor(SSD1306_WHITE);
+
     _display.setTextSize(2);
     _display.setCursor(0,0);
+    _display.println("SIEE");
 
-    _display.println(status);
+    _display.setTextSize(1);
+    _display.println("Alarm");
+    _display.println();
+
+    _display.print("Estado: ");
+
+    if (armed)
+        _display.println("ARMADA");
+    else
+        _display.println("DESARMADA");
+
+    _display.print("Puerta: ");
+
+    if (doorOpen)
+        _display.println("ABIERTA");
+    else
+        _display.println("CERRADA");
+
+    _display.print("PIR: ");
+
+    if (pirActive)
+        _display.println("MOVIMIENTO");
+    else
+        _display.println("NORMAL");
 
     _display.display();
 }

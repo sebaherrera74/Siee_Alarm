@@ -12,7 +12,9 @@ public:
 
     void showSplash();
 
-    void showStatus(const char *status);
+   void showStatus(bool armed,
+                    bool doorOpen,
+                    bool pirActive);
 
 private:
 

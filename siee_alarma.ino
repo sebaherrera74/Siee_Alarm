@@ -24,7 +24,7 @@ void setup()
     else
         Logger::error("Display NO encontrado");
 
-    display.showStatus("DESARMADA");
+    display.showStatus(false,door.isActive(), pir.isActive());
 
     door.begin();
     pir.begin();
@@ -40,24 +40,33 @@ void setup()
 
 void loop()
 {
+    // Actualizar botones
+    buttonArm.update();
+    buttonMenu.update();
 
-  buttonArm.update();
-buttonMenu.update();
-    if(buttonArm.wasPressed())
-{
-    alarm.toggle();
+    // Actualizar sensores
+    door.update();
+    pir.update();
 
-    if(alarm.isArmed())
+    // Botón ARMAR / DESARMAR
+    if (buttonArm.wasPressed())
     {
-        Logger::info("Sistema ARMADO");
+        alarm.toggle();
 
-        display.showStatus("ARMADA");
+        if (alarm.isArmed())
+        {
+            Logger::info("Sistema ARMADO");
+        }
+        else
+        {
+            Logger::info("Sistema DESARMADO");
+        }
     }
-    else
-    {
-        Logger::info("Sistema DESARMADO");
 
-        display.showStatus("DESARMADA");
-    }
-}
+    // Actualizar pantalla
+    display.showStatus(
+        alarm.isArmed(),
+        door.isActive(),
+        pir.isActive()
+    );
 }
