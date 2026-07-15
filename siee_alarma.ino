@@ -4,7 +4,9 @@
 #include "Sensor.h"
 #include "Button.h"
 #include "Alarm.h"
+#include "Timmer.h"
 
+Timer testTimer;
 Display display;
 Alarm alarm;
 Sensor door(PIN_DOOR);
@@ -36,6 +38,9 @@ void setup()
 
     Logger::info("Botones inicializados");
     alarm.begin();
+    testTimer.start(5000);
+
+    Logger::info("Timer iniciado");
 }
 
 void loop()
@@ -69,4 +74,9 @@ void loop()
         door.isActive(),
         pir.isActive()
     );
+
+    if (testTimer.expired())
+{
+    Logger::info("Tiempo cumplido");
+}
 }

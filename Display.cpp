@@ -24,7 +24,7 @@ void Display::showSplash()
     _display.println("SIEE");
 
     _display.setTextSize(1);
-    _display.println("Alarm");
+    _display.print("Alarm");
 
     _display.display();
 }
@@ -37,34 +37,37 @@ void Display::showStatus(bool armed,
 
     _display.setTextColor(SSD1306_WHITE);
 
-    _display.setTextSize(2);
-    _display.setCursor(0,0);
-    _display.println("SIEE");
-
     _display.setTextSize(1);
-    _display.println("Alarm");
-    _display.println();
+    _display.setCursor(22,0);
+    _display.println("SIEE Alarm");
+  
+   // Línea separadora
+  _display.drawLine(0, 10, 127, 10, SSD1306_WHITE);
 
-    _display.print("Estado: ");
+    _display.setCursor(0,15);
 
-    if (armed)
-        _display.println("ARMADA");
-    else
-        _display.println("DESARMADA");
+_display.print("Estado : ");
 
-    _display.print("Puerta: ");
+if (armed)
+    _display.println("ARMADA");
+else
+    _display.println("DESARMADA");
 
-    if (doorOpen)
-        _display.println("ABIERTA");
-    else
-        _display.println("CERRADA");
+_display.println();
 
-    _display.print("PIR: ");
+_display.print("Puerta : ");
 
-    if (pirActive)
-        _display.println("MOVIMIENTO");
-    else
-        _display.println("NORMAL");
+if (doorOpen)
+    _display.println("ABIERTA");
+else
+    _display.println("CERRADA");
+
+_display.print("PIR    : ");
+
+if (pirActive)
+    _display.println("ACTIVO");
+else
+    _display.println("NORMAL");
 
     _display.display();
 }
