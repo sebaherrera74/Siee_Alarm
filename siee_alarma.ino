@@ -55,6 +55,14 @@ void loop()
     // Lógica
     alarm.update();
 
+    if (alarm.getState() == AlarmState::Armed)
+{
+    if (door.isActive())
+    {
+        alarm.triggerEntryDelay();
+    }
+}
+
     if (buttonArm.wasPressed())
     {
         alarm.toggle();
@@ -87,5 +95,11 @@ void loop()
 
         default:
             break;
+        case AlarmState::EntryDelay:
+
+        display.showEntryDelay(
+        alarm.entryDelayRemaining());
+
+    break;
     }
 }

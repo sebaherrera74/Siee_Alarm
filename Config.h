@@ -52,5 +52,5 @@ constexpr uint8_t PIN_BUTTON_MENU = 32;
 //==================================================
 
 constexpr uint16_t EXIT_DELAY_SEC = 20;
-
+constexpr uint16_t ENTRY_DELAY_SEC = 15;
 #endif

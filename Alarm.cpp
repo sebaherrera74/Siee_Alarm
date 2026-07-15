@@ -49,10 +49,33 @@ void Alarm::update()
 
         default:
             break;
+        case AlarmState::EntryDelay:
+        
+          if (_entryTimer.expired())
+         {
+            _state = AlarmState::Triggered;
+         }
+
+    break;
     }
 }
 
 AlarmState Alarm::getState() const
 {
     return _state;
+}
+
+void Alarm::triggerEntryDelay()
+{
+    if (_state != AlarmState::Armed)
+        return;
+
+    _state = AlarmState::EntryDelay;
+
+    _entryTimer.start(ENTRY_DELAY_SEC * 1000);
+}
+
+uint8_t Alarm::entryDelayRemaining() const
+{
+    return _entryTimer.remaining() / 1000;
 }

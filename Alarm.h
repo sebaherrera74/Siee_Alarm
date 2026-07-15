@@ -27,14 +27,17 @@ public:
     bool isArmed() const;
     void update();
     uint8_t exitDelayRemaining() const;
+    uint8_t entryDelayRemaining() const;
 
+    void triggerEntryDelay();
 
 
 private:
 
     AlarmState _state;
-  
     Timer _exitTimer;
+    Timer _entryTimer;
+    
 };
 
 #endif
