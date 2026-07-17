@@ -2,6 +2,15 @@
 #define BUZZER_H
 
 #include <Arduino.h>
+#include "Timmer.h"
+enum class BuzzerMode
+{
+    Off,
+    SingleBeep,
+    DoubleBeep,
+    Periodic,
+    Alarm
+};
 
 class Buzzer
 {
@@ -16,6 +25,7 @@ public:
     void beep(uint16_t duration);
 
     void update();
+    void setMode(BuzzerMode mode);
 
 private:
     uint8_t _pin;
@@ -24,6 +34,12 @@ private:
 
     unsigned long _startTime;
     uint16_t _duration;
+
+    BuzzerMode _mode;
+
+    Timer _timer;
+
+    bool _output;
 };
 
 #endif

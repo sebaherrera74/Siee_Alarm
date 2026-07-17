@@ -6,22 +6,23 @@
 
 class Display
 {
-public:
+  public:
 
     bool begin();
 
     void showSplash();
 
-   void showStatus(bool armed,
+    void showStatus(bool armed,
                     bool doorOpen,
                     bool pirActive);
-   void showExitDelay(uint8_t seconds);
+    void showExitDelay(uint8_t seconds);
 
-   void showEntryDelay(uint8_t seconds);
-private:
+    void showEntryDelay(uint8_t seconds);
+    void showAlarm();
+  private:
 
     Adafruit_SSD1306 _display =
-        Adafruit_SSD1306(128,64,&Wire,-1);
+      Adafruit_SSD1306(128, 64, &Wire, -1);
 
 };
 
