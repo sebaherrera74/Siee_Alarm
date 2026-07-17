@@ -5,12 +5,14 @@
 #include "Button.h"
 #include "Alarm.h"
 #include "Timmer.h"
+#include "Buzzer.h"
 
 Timer testTimer;
 Display display;
 Alarm alarm;
 Sensor door(PIN_DOOR);
 Sensor pir(PIN_PIR);
+Buzzer buzzer(PIN_BUZZER);
 
 Button buttonArm(PIN_BUTTON_ARM);
 
@@ -41,6 +43,7 @@ void setup()
     testTimer.start(5000);
 
     Logger::info("Timer iniciado");
+    buzzer.begin();
 }
 
 void loop()
@@ -54,6 +57,7 @@ void loop()
 
     // Lógica
     alarm.update();
+    buzzer.update();
 
     if (alarm.getState() == AlarmState::Armed)
 {
@@ -66,6 +70,7 @@ void loop()
     if (buttonArm.wasPressed())
     {
         alarm.toggle();
+        buzzer.beep(150);
     }
 
     // Interfaz

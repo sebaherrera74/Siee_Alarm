@@ -34,7 +34,6 @@ constexpr uint8_t PIN_PIR  = 27;
 // Indicadores
 //==================================================
 
-#define PIN_BUZZER      25
 
 #define PIN_LED_RED     2
 #define PIN_LED_GREEN   4
@@ -53,4 +52,6 @@ constexpr uint8_t PIN_BUTTON_MENU = 32;
 
 constexpr uint16_t EXIT_DELAY_SEC = 20;
 constexpr uint16_t ENTRY_DELAY_SEC = 15;
+
+constexpr uint8_t PIN_BUZZER = 18;
 #endif
