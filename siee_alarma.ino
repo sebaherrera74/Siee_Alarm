@@ -1,3 +1,4 @@
+
 #include "config.h"
 #include "Logger.h"
 #include "Display.h"
@@ -18,107 +19,104 @@ Button buttonArm(PIN_BUTTON_ARM);
 
 Button buttonMenu(PIN_BUTTON_MENU);
 void setup()
-{
-  Logger::begin();
+{ Serial.begin(115200);
 
-  Logger::info("Iniciando...");
+  //logger.begin();
 
-  if (display.begin())
-    Logger::info("Display OK");
-  else
-    Logger::error("Display NO encontrado");
-
-  display.showStatus(false, door.isActive(), pir.isActive());
+  display.begin();
 
   door.begin();
   pir.begin();
 
-  Logger::info("Sensores inicializados");
-
   buttonArm.begin();
   buttonMenu.begin();
 
-  Logger::info("Botones inicializados");
-  alarm.begin();
-  testTimer.start(5000);
-
-  Logger::info("Timer iniciado");
   buzzer.begin();
+
+  alarm.begin();
+
 }
+
+
 
 void loop()
 {
-  // Entradas
+  // Actualizar entradas
   buttonArm.update();
   buttonMenu.update();
 
   door.update();
   pir.update();
 
-  // Lógica
-  alarm.update();
-  buzzer.update();
+  // Procesar eventos de entrada
 
-  if (alarm.getState() == AlarmState::Armed)
+  if (buttonArm.wasPressed())
   {
-    if (door.isActive())
+    alarm.toggle();
+  }
+
+  if (alarm.isArmed())
+  {
+    if (door.isActive() || pir.isActive())
     {
       alarm.triggerEntryDelay();
     }
   }
 
-  if (buttonArm.wasPressed())
+  // Actualizar lógica
+  alarm.update();
+
+  // Eventos (solo cuando cambia el estado)
+  if (alarm.stateChanged())
   {
-    alarm.toggle();
-    buzzer.beep(150);
+    switch (alarm.getState())
+    {
+      case AlarmState::Disarmed:
+        buzzer.play(BuzzerPattern::Double);
+        break;
+
+      case AlarmState::ExitDelay:
+        buzzer.play(BuzzerPattern::Periodic);
+        break;
+
+      case AlarmState::Armed:
+        buzzer.stop();
+        break;
+
+      case AlarmState::EntryDelay:
+        buzzer.stop();
+        break;
+
+      case AlarmState::Triggered:
+        buzzer.stop();
+        break;
+    }
   }
 
-  // Interfaz
+  // Actualizar buzzer
+  buzzer.update();
+
+  // Actualizar display
   switch (alarm.getState())
   {
     case AlarmState::Disarmed:
-
-      buzzer.setMode(BuzzerMode::Off);
-
-      display.showStatus(
-        false,
-        door.isActive(),
-        pir.isActive());
-
+      display.showStatus(false, door.isActive(), pir.isActive());
       break;
 
     case AlarmState::ExitDelay:
-
-      display.showExitDelay(
-        alarm.exitDelayRemaining());
-      buzzer.setMode(BuzzerMode::Periodic);
+      display.showExitDelay(alarm.exitDelayRemaining());
       break;
 
     case AlarmState::Armed:
-
-      display.showStatus(
-        true,
-        door.isActive(),
-        pir.isActive());
-      buzzer.setMode(BuzzerMode::Off);
+      display.showStatus(true, door.isActive(), pir.isActive());
       break;
 
-    default:
-      break;
     case AlarmState::EntryDelay:
-
-      buzzer.setMode(BuzzerMode::Periodic);
-
-      display.showEntryDelay(
-        alarm.entryDelayRemaining());
-
+      display.showEntryDelay(alarm.entryDelayRemaining());
       break;
+
     case AlarmState::Triggered:
-
-      buzzer.setMode(BuzzerMode::Alarm);
-
       display.showAlarm();
-
       break;
   }
 }

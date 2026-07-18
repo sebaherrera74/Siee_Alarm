@@ -30,11 +30,13 @@ public:
     uint8_t entryDelayRemaining() const;
 
     void triggerEntryDelay();
+    bool stateChanged();
 
 
 private:
 
     AlarmState _state;
+    AlarmState _previousState;
     Timer _exitTimer;
     Timer _entryTimer;
     

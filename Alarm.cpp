@@ -1,8 +1,10 @@
 #include "Alarm.h"
 #include "config.h"
+
 void Alarm::begin()
 {
     _state = AlarmState::Disarmed;
+    _previousState = _state;
 }
 
 void Alarm::arm()
@@ -78,4 +80,15 @@ void Alarm::triggerEntryDelay()
 uint8_t Alarm::entryDelayRemaining() const
 {
     return _entryTimer.remaining() / 1000;
+}
+
+bool Alarm::stateChanged()
+{
+    if (_state != _previousState)
+    {
+        _previousState = _state;
+        return true;
+    }
+
+    return false;
 }

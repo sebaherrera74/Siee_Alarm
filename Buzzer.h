@@ -3,43 +3,44 @@
 
 #include <Arduino.h>
 #include "Timmer.h"
-enum class BuzzerMode
+
+enum class BuzzerPattern
 {
-    Off,
-    SingleBeep,
-    DoubleBeep,
-    Periodic,
-    Alarm
+    None,
+    Single,
+    Double,
+    Periodic
 };
 
 class Buzzer
 {
 public:
+
     explicit Buzzer(uint8_t pin);
 
     void begin();
 
+    void update();
+
+    void play(BuzzerPattern pattern);
+
+    void stop();
+    void test();
+
+private:
+
     void on();
     void off();
 
-    void beep(uint16_t duration);
-
-    void update();
-    void setMode(BuzzerMode mode);
-
-private:
     uint8_t _pin;
-
-    bool _beeping;
-
-    unsigned long _startTime;
-    uint16_t _duration;
-
-    BuzzerMode _mode;
 
     Timer _timer;
 
     bool _output;
+
+    uint8_t _step;
+
+    BuzzerPattern _pattern;
 };
 
-#endif
+#endif // BUZZER_H
