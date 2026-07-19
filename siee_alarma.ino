@@ -7,6 +7,7 @@
 #include "Alarm.h"
 #include "Timmer.h"
 #include "Buzzer.h"
+#include "Relay.h"
 
 Timer testTimer;
 Display display;
@@ -18,6 +19,9 @@ Buzzer buzzer(PIN_BUZZER);
 Button buttonArm(PIN_BUTTON_ARM);
 
 Button buttonMenu(PIN_BUTTON_MENU);
+
+Relay relay(PIN_RELAY);
+
 void setup()
 { Serial.begin(115200);
 
@@ -34,6 +38,7 @@ void setup()
   buzzer.begin();
 
   alarm.begin();
+   relay.begin();
 
 }
 
@@ -47,6 +52,7 @@ void loop()
 
   door.update();
   pir.update();
+
 
   // Procesar eventos de entrada
 
@@ -73,22 +79,27 @@ void loop()
     {
       case AlarmState::Disarmed:
         buzzer.play(BuzzerPattern::Double);
+          relay.off();
         break;
 
       case AlarmState::ExitDelay:
         buzzer.play(BuzzerPattern::Periodic);
+          relay.off();
         break;
 
       case AlarmState::Armed:
         buzzer.stop();
+          relay.off();
         break;
 
       case AlarmState::EntryDelay:
         buzzer.stop();
+          relay.off();
         break;
 
       case AlarmState::Triggered:
         buzzer.stop();
+          relay.on();
         break;
     }
   }

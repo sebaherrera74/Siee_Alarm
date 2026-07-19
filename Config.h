@@ -35,10 +35,6 @@ constexpr uint8_t PIN_PIR  = 27;
 //==================================================
 
 
-#define PIN_LED_RED     2
-#define PIN_LED_GREEN   4
-
-
 //==================================================
 // Botones
 //==================================================
@@ -54,4 +50,10 @@ constexpr uint16_t EXIT_DELAY_SEC = 20;
 constexpr uint16_t ENTRY_DELAY_SEC = 15;
 
 constexpr uint8_t PIN_BUZZER = 18;
+
+constexpr uint8_t PIN_RELAY=16;
+// Nivel lógico que activa el relé
+constexpr uint8_t RELAY_ON  = LOW;
+constexpr uint8_t RELAY_OFF = HIGH;
+
 #endif
