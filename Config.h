@@ -56,4 +56,8 @@ constexpr uint8_t PIN_RELAY=16;
 constexpr uint8_t RELAY_ON  = LOW;
 constexpr uint8_t RELAY_OFF = HIGH;
 
+
+constexpr char WIFI_SSID[] = "TP-Link_42AE";
+constexpr char WIFI_PASSWORD[] = "99695019";
+
 #endif

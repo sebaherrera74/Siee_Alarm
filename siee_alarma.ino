@@ -8,10 +8,11 @@
 #include "Timmer.h"
 #include "Buzzer.h"
 #include "Relay.h"
+#include "WiFiManager.h"
 
 Timer testTimer;
 Display display;
-Alarm alarm;
+Alarm alarmSystem;
 Sensor door(PIN_DOOR);
 Sensor pir(PIN_PIR);
 Buzzer buzzer(PIN_BUZZER);
@@ -21,6 +22,8 @@ Button buttonArm(PIN_BUTTON_ARM);
 Button buttonMenu(PIN_BUTTON_MENU);
 
 Relay relay(PIN_RELAY);
+
+WiFiManager wifi;
 
 void setup()
 { Serial.begin(115200);
@@ -37,8 +40,9 @@ void setup()
 
   buzzer.begin();
 
-  alarm.begin();
-   relay.begin();
+  alarmSystem.begin();
+  relay.begin();
+  wifi.begin();
 
 }
 
@@ -58,48 +62,50 @@ void loop()
 
   if (buttonArm.wasPressed())
   {
-    alarm.toggle();
+    alarmSystem.toggle();
   }
 
-  if (alarm.isArmed())
+  if (alarmSystem.isArmed())
   {
     if (door.isActive() || pir.isActive())
     {
-      alarm.triggerEntryDelay();
+      alarmSystem.triggerEntryDelay();
     }
   }
 
   // Actualizar lógica
-  alarm.update();
+  alarmSystem.update();
+
+
 
   // Eventos (solo cuando cambia el estado)
-  if (alarm.stateChanged())
+  if (alarmSystem.stateChanged())
   {
-    switch (alarm.getState())
+    switch (alarmSystem.getState())
     {
       case AlarmState::Disarmed:
         buzzer.play(BuzzerPattern::Double);
-          relay.off();
+        relay.off();
         break;
 
       case AlarmState::ExitDelay:
         buzzer.play(BuzzerPattern::Periodic);
-          relay.off();
+        relay.off();
         break;
 
       case AlarmState::Armed:
         buzzer.stop();
-          relay.off();
+        relay.off();
         break;
 
       case AlarmState::EntryDelay:
         buzzer.stop();
-          relay.off();
+        relay.off();
         break;
 
       case AlarmState::Triggered:
         buzzer.stop();
-          relay.on();
+        relay.on();
         break;
     }
   }
@@ -108,14 +114,14 @@ void loop()
   buzzer.update();
 
   // Actualizar display
-  switch (alarm.getState())
+  switch (alarmSystem.getState())
   {
     case AlarmState::Disarmed:
       display.showStatus(false, door.isActive(), pir.isActive());
       break;
 
     case AlarmState::ExitDelay:
-      display.showExitDelay(alarm.exitDelayRemaining());
+      display.showExitDelay(alarmSystem.exitDelayRemaining());
       break;
 
     case AlarmState::Armed:
@@ -123,11 +129,13 @@ void loop()
       break;
 
     case AlarmState::EntryDelay:
-      display.showEntryDelay(alarm.entryDelayRemaining());
+      display.showEntryDelay(alarmSystem.entryDelayRemaining());
       break;
 
     case AlarmState::Triggered:
       display.showAlarm();
       break;
   }
+  
+  wifi.update();
 }
