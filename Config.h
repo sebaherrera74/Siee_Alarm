@@ -60,4 +60,7 @@ constexpr uint8_t RELAY_OFF = HIGH;
 constexpr char WIFI_SSID[] = "TP-Link_42AE";
 constexpr char WIFI_PASSWORD[] = "99695019";
 
+constexpr char TELEGRAM_BOT_TOKEN[] = "8220267801:AAH6rb-Y8O8AAcqcdrG4mllv5X8BqYnfBUk";
+constexpr char TELEGRAM_CHAT_ID[] = "8196286452";
+
 #endif

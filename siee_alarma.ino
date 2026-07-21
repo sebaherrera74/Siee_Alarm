@@ -9,6 +9,7 @@
 #include "Buzzer.h"
 #include "Relay.h"
 #include "WiFiManager.h"
+#include "TelegramManager.h"
 
 Timer testTimer;
 Display display;
@@ -16,6 +17,8 @@ Alarm alarmSystem;
 Sensor door(PIN_DOOR);
 Sensor pir(PIN_PIR);
 Buzzer buzzer(PIN_BUZZER);
+
+
 
 Button buttonArm(PIN_BUTTON_ARM);
 
@@ -25,6 +28,7 @@ Relay relay(PIN_RELAY);
 
 WiFiManager wifi;
 
+TelegramManager telegram;
 void setup()
 { Serial.begin(115200);
 
@@ -43,6 +47,10 @@ void setup()
   alarmSystem.begin();
   relay.begin();
   wifi.begin();
+
+  telegram.begin();
+
+  telegram.sendMessage("✅ SIEE Alarm iniciada correctamente.");
 
 }
 
