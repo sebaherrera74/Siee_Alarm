@@ -58,92 +58,95 @@ void setup()
 
 void loop()
 {
-  // Actualizar entradas
-  buttonArm.update();
-  buttonMenu.update();
+    // Actualizar entradas
+    buttonArm.update();
+    buttonMenu.update();
 
-  door.update();
-  pir.update();
+    door.update();
+    pir.update();
 
-
-  // Procesar eventos de entrada
-
-  if (buttonArm.wasPressed())
-  {
-    alarmSystem.toggle();
-  }
-
-  if (alarmSystem.isArmed())
-  {
-    if (door.isActive() || pir.isActive())
+    // Procesar eventos de entrada
+    if (buttonArm.wasPressed())
     {
-      alarmSystem.triggerEntryDelay();
+        alarmSystem.toggle();
     }
-  }
 
-  // Actualizar lógica
-  alarmSystem.update();
+    if (alarmSystem.isArmed())
+    {
+        if (door.isActive() || pir.isActive())
+        {
+            alarmSystem.triggerEntryDelay();
+        }
+    }
 
+    // Actualizar lógica
+    alarmSystem.update();
 
+    // Detectar un único cambio de estado
+    bool stateChanged = alarmSystem.stateChanged();
 
-  // Eventos (solo cuando cambia el estado)
-  if (alarmSystem.stateChanged())
-  {
+    if (stateChanged)
+    {
+        switch (alarmSystem.getState())
+        {
+            case AlarmState::Disarmed:
+                telegram.sendMessage("⚪ Alarma DESARMADA");
+                buzzer.play(BuzzerPattern::Double);
+                relay.off();
+                break;
+
+            case AlarmState::ExitDelay:
+                telegram.sendMessage("🟡 Retardo de salida");
+                buzzer.play(BuzzerPattern::Periodic);
+                relay.off();
+                break;
+
+            case AlarmState::Armed:
+                telegram.sendMessage("🟢 Alarma ARMADA");
+                buzzer.stop();
+                relay.off();
+                break;
+
+            case AlarmState::EntryDelay:
+                telegram.sendMessage("🟠 Retardo de entrada");
+                buzzer.stop();
+                relay.off();
+                break;
+
+            case AlarmState::Triggered:
+                telegram.sendMessage("🚨🚨 ALARMA DISPARADA 🚨🚨");
+                buzzer.stop();
+                relay.on();
+                break;
+        }
+    }
+
+    // Actualizar buzzer
+    buzzer.update();
+
+    // Actualizar display
     switch (alarmSystem.getState())
     {
-      case AlarmState::Disarmed:
-        buzzer.play(BuzzerPattern::Double);
-        relay.off();
-        break;
+        case AlarmState::Disarmed:
+            display.showStatus(false, door.isActive(), pir.isActive());
+            break;
 
-      case AlarmState::ExitDelay:
-        buzzer.play(BuzzerPattern::Periodic);
-        relay.off();
-        break;
+        case AlarmState::ExitDelay:
+            display.showExitDelay(alarmSystem.exitDelayRemaining());
+            break;
 
-      case AlarmState::Armed:
-        buzzer.stop();
-        relay.off();
-        break;
+        case AlarmState::Armed:
+            display.showStatus(true, door.isActive(), pir.isActive());
+            break;
 
-      case AlarmState::EntryDelay:
-        buzzer.stop();
-        relay.off();
-        break;
+        case AlarmState::EntryDelay:
+            display.showEntryDelay(alarmSystem.entryDelayRemaining());
+            break;
 
-      case AlarmState::Triggered:
-        buzzer.stop();
-        relay.on();
-        break;
+        case AlarmState::Triggered:
+            display.showAlarm();
+            break;
     }
-  }
 
-  // Actualizar buzzer
-  buzzer.update();
-
-  // Actualizar display
-  switch (alarmSystem.getState())
-  {
-    case AlarmState::Disarmed:
-      display.showStatus(false, door.isActive(), pir.isActive());
-      break;
-
-    case AlarmState::ExitDelay:
-      display.showExitDelay(alarmSystem.exitDelayRemaining());
-      break;
-
-    case AlarmState::Armed:
-      display.showStatus(true, door.isActive(), pir.isActive());
-      break;
-
-    case AlarmState::EntryDelay:
-      display.showEntryDelay(alarmSystem.entryDelayRemaining());
-      break;
-
-    case AlarmState::Triggered:
-      display.showAlarm();
-      break;
-  }
-  
-  wifi.update();
+    wifi.update();
 }
