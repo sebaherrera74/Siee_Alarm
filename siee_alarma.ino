@@ -30,6 +30,8 @@ WiFiManager wifi;
 
 TelegramManager telegram;
 
+QueueHandle_t telegramQueue;
+
 void TaskAlarm(void *pvParameters)
 {
 
@@ -126,7 +128,7 @@ void TaskAlarm(void *pvParameters)
         break;
     }
 
-    wifi.update();
+
     //telegram.update();
     //TelegramCommand cmd = telegram.getCommand();
 
@@ -157,13 +159,42 @@ void TaskAlarm(void *pvParameters)
 
 void TaskTelegram(void *pvParameters)
 {
-  Serial.println("TaskTelegram iniciada");
-  while (true)
-  {
-    telegram.update();
+    Serial.println("TaskTelegram iniciada");
 
-    vTaskDelay(pdMS_TO_TICKS(500));
-  }
+    while (true)
+    {
+        wifi.update();
+
+        telegram.update();
+
+        TelegramCommand cmd = telegram.getCommand();
+
+        switch (cmd)
+        {
+            case TelegramCommand::Status:
+                Serial.println("Comando /estado");
+
+                telegram.sendMessage("Estado recibido");
+                break;
+
+            case TelegramCommand::Arm:
+                Serial.println("Comando /armar");
+
+                telegram.sendMessage("Comando ARMAR recibido");
+                break;
+
+            case TelegramCommand::Disarm:
+                Serial.println("Comando /desarmar");
+
+                telegram.sendMessage("Comando DESARMAR recibido");
+                break;
+
+            default:
+                break;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
 }
 void setup()
 {
@@ -189,6 +220,17 @@ void setup()
   telegram.begin();
 
   telegram.sendMessage("✅ SIEE Alarm iniciada correctamente.");
+
+  telegramQueue = xQueueCreate(10, sizeof(String*));
+
+  if (telegramQueue == NULL)
+  {
+    Serial.println("Error creando Queue");
+  }
+  else
+  {
+    Serial.println("Queue creada correctamente");
+  }
   xTaskCreatePinnedToCore(
     TaskAlarm,      // función
     "TaskAlarm",    // nombre
