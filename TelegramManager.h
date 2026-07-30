@@ -4,20 +4,31 @@
 #include <WiFiClientSecure.h>
 #include <UniversalTelegramBot.h>
 
+enum class TelegramCommand
+{
+  None,
+  Status,
+  Arm,
+  Disarm
+};
+
 class TelegramManager
 {
-public:
+  public:
 
     TelegramManager();
 
     void begin();
 
     bool sendMessage(const String& text);
+    TelegramCommand getCommand();
+    void update();
 
-private:
+  private:
 
     WiFiClientSecure _client;
     UniversalTelegramBot* _bot;
+    TelegramCommand _command = TelegramCommand::None;
 };
 
 #endif
