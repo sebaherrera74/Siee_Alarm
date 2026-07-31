@@ -11,6 +11,12 @@
 #include "WiFiManager.h"
 #include "TelegramManager.h"
 
+#include "AlarmCommand.h"
+#include "AlarmEvent.h"
+
+QueueHandle_t commandQueue;
+QueueHandle_t eventQueue;
+
 Timer testTimer;
 Display display;
 Alarm alarmSystem;
@@ -38,6 +44,36 @@ void TaskAlarm(void *pvParameters)
   Serial.println("TaskAlarm iniciada");
   while (true)
   {
+
+    // ===== Recibir comandos de otras tareas =====
+    AlarmCommand cmd;
+
+    if (xQueueReceive(commandQueue, &cmd, 0) == pdTRUE)
+    {
+      Serial.print("Comando recibido: ");
+
+      switch (cmd)
+      {
+        case AlarmCommand::Arm:
+          Serial.println("ARM");
+          break;
+
+        case AlarmCommand::Disarm:
+          Serial.println("DISARM");
+          break;
+
+        case AlarmCommand::Status:
+          Serial.println("STATUS");
+          break;
+
+        case AlarmCommand::Panic:
+          Serial.println("PANIC");
+          break;
+
+        default:
+          break;
+      }
+    }
     // Actualizar entradas
     buttonArm.update();
     buttonMenu.update();
@@ -159,42 +195,49 @@ void TaskAlarm(void *pvParameters)
 
 void TaskTelegram(void *pvParameters)
 {
-    Serial.println("TaskTelegram iniciada");
+  Serial.println("TaskTelegram iniciada");
 
-    while (true)
+  while (true)
+  {
+    wifi.update();
+
+    telegram.update();
+
+    TelegramCommand cmd = telegram.getCommand();
+
+    switch (cmd)
     {
-        wifi.update();
+      case TelegramCommand::Status:
+        Serial.println("Comando /estado");
 
-        telegram.update();
+        telegram.sendMessage("Estado recibido");
+        break;
 
-        TelegramCommand cmd = telegram.getCommand();
-
-        switch (cmd)
+      case TelegramCommand::Arm:
         {
-            case TelegramCommand::Status:
-                Serial.println("Comando /estado");
+          AlarmCommand cmd = AlarmCommand::Arm;
 
-                telegram.sendMessage("Estado recibido");
-                break;
+          xQueueSend(commandQueue, &cmd, 0);
 
-            case TelegramCommand::Arm:
-                Serial.println("Comando /armar");
+          telegram.sendMessage("Comando ARMAR enviado a TaskAlarm");
 
-                telegram.sendMessage("Comando ARMAR recibido");
-                break;
-
-            case TelegramCommand::Disarm:
-                Serial.println("Comando /desarmar");
-
-                telegram.sendMessage("Comando DESARMAR recibido");
-                break;
-
-            default:
-                break;
+          break;
         }
+        telegram.sendMessage("Comando ARMAR recibido");
+        break;
 
-        vTaskDelay(pdMS_TO_TICKS(500));
+      case TelegramCommand::Disarm:
+        Serial.println("Comando /desarmar");
+
+        telegram.sendMessage("Comando DESARMAR recibido");
+        break;
+
+      default:
+        break;
     }
+
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
 }
 void setup()
 {
@@ -221,16 +264,18 @@ void setup()
 
   telegram.sendMessage("✅ SIEE Alarm iniciada correctamente.");
 
-  telegramQueue = xQueueCreate(10, sizeof(String*));
-
-  if (telegramQueue == NULL)
+  commandQueue = xQueueCreate(10, sizeof(AlarmCommand));
+  eventQueue   = xQueueCreate(10, sizeof(AlarmEvent));
+  if (commandQueue == NULL || eventQueue == NULL)
   {
-    Serial.println("Error creando Queue");
+    Serial.println("Error creando las Queue");
   }
   else
   {
-    Serial.println("Queue creada correctamente");
+    Serial.println("Queues creadas correctamente");
   }
+
+
   xTaskCreatePinnedToCore(
     TaskAlarm,      // función
     "TaskAlarm",    // nombre
