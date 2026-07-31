@@ -105,35 +105,45 @@ void TaskAlarm(void *pvParameters)
     {
       switch (alarmSystem.getState())
       {
-        case AlarmState::Disarmed:
-          //telegram.sendMessage("⚪ Alarma DESARMADA");
+        case AlarmState::Disarmed:{
+
+          AlarmEvent event = AlarmEvent::Disarmed;
+          xQueueSend(eventQueue, &event, 0);
+
           buzzer.play(BuzzerPattern::Double);
           relay.off();
           break;
+        }
+        case AlarmState::ExitDelay:{
+          AlarmEvent event = AlarmEvent::ExitDelay;
+          xQueueSend(eventQueue, &event, 0);
 
-        case AlarmState::ExitDelay:
-          //telegram.sendMessage("🟡 Retardo de salida");
           buzzer.play(BuzzerPattern::Periodic);
           relay.off();
-          break;
+          break;}
 
-        case AlarmState::Armed:
-          //telegram.sendMessage("🟢 Alarma ARMADA");
+        case AlarmState::Armed:{
+          AlarmEvent event = AlarmEvent::Armed;
+          xQueueSend(eventQueue, &event, 0);
+
           buzzer.stop();
           relay.off();
-          break;
+          break;}
 
-        case AlarmState::EntryDelay:
-          //telegram.sendMessage("🟠 Retardo de entrada");
+        case AlarmState::EntryDelay:{
+          AlarmEvent event = AlarmEvent::EntryDelay;
+          xQueueSend(eventQueue, &event, 0);
           buzzer.stop();
           relay.off();
-          break;
+          break;}
 
-        case AlarmState::Triggered:
-          //telegram.sendMessage("🚨🚨 ALARMA DISPARADA 🚨🚨");
+        case AlarmState::Triggered:{
+          AlarmEvent event = AlarmEvent::Triggered;
+          xQueueSend(eventQueue, &event, 0);
+
           buzzer.stop();
           relay.on();
-          break;
+          break;}
       }
     }
 
@@ -235,6 +245,37 @@ void TaskTelegram(void *pvParameters)
       default:
         break;
     }
+
+    AlarmEvent event;
+
+if (xQueueReceive(eventQueue, &event, 0) == pdTRUE)
+{
+    switch (event)
+    {
+        case AlarmEvent::Armed:
+            telegram.sendMessage("🟢 Alarma ARMADA");
+            break;
+
+        case AlarmEvent::Disarmed:
+            telegram.sendMessage("⚪ Alarma DESARMADA");
+            break;
+
+        case AlarmEvent::ExitDelay:
+            telegram.sendMessage("🟡 Retardo de salida");
+            break;
+
+        case AlarmEvent::EntryDelay:
+            telegram.sendMessage("🟠 Retardo de entrada");
+            break;
+
+        case AlarmEvent::Triggered:
+            telegram.sendMessage("🚨🚨 ALARMA DISPARADA 🚨🚨");
+            break;
+
+        default:
+            break;
+    }
+}
 
     vTaskDelay(pdMS_TO_TICKS(500));
   }
