@@ -1,51 +1,161 @@
+
 # SIEE Alarm
 
-Sistema de alarma para el hogar basado en ESP32, desarrollado como un proyecto modular y escalable por **SIEE (Sistemas Integrales Electrónicos Eléctricos)**.
+Sistema de alarma residencial desarrollado sobre ESP32 utilizando FreeRTOS y una arquitectura basada en eventos.
 
-## Descripción
+El proyecto busca ser una plataforma modular y escalable para futuras versiones con teclado matricial, RFID, aplicación móvil, MQTT, Home Assistant y monitoreo remoto.
 
-SIEE Alarm tiene como objetivo desarrollar una central de alarma confiable, sencilla de instalar y fácil de ampliar. El proyecto está pensado inicialmente para aplicaciones residenciales, utilizando un ESP32 como unidad central y una arquitectura de software modular que facilite futuras mejoras.
+---
 
-El desarrollo se realiza de forma incremental, incorporando y validando cada módulo antes de añadir nuevas funcionalidades.
+## Características
+
+- ESP32
+- FreeRTOS
+- Máquina de estados
+- Comunicación mediante Queues
+- Pantalla OLED SSD1306
+- Sensores magnéticos (NC)
+- Sensores PIR (NC)
+- Buzzer
+- Relé para sirena
+- Bot de Telegram
+- WiFi
+
+---
+
+## Arquitectura
+
+El firmware está dividido en tareas independientes.
+
+```
+                Telegram
+                    │
+                    ▼
+             TaskTelegram
+                    │
+             commandQueue
+                    │
+                    ▼
+               TaskAlarm
+                    │
+            Máquina de estados
+                    │
+              eventQueue
+                    │
+                    ▼
+             TaskTelegram
+```
+
+Las tareas nunca llaman directamente a otras clases.
+
+Toda la comunicación se realiza mediante colas de FreeRTOS.
+
+---
+
+## Estados de la alarma
+
+- Disarmed
+- ExitDelay
+- Armed
+- EntryDelay
+- Triggered
+
+---
+
+## Eventos
+
+- Armed
+- Disarmed
+- ExitDelay
+- EntryDelay
+- Triggered
+
+---
+
+## Comandos
+
+Actualmente soportados desde Telegram:
+
+- /armar
+- /desarmar
+- /estado
+
+---
 
 ## Hardware
 
-* ESP32 DevKit V1
-* Display OLED SSD1306 128x64 (I²C)
-* Sensor magnético para puertas o ventanas
-* Sensor PIR (inicialmente simulado durante el desarrollo)
-* Buzzer
-* LED de estado
-* Pulsadores de control
+- ESP32 DevKit
+- Display OLED SSD1306 I2C
+- Sensor magnético NC
+- Sensor PIR NC
+- Relé
+- Buzzer
 
-## Funciones previstas
+---
 
-* Armado y desarmado del sistema
-* Retardo de salida
-* Retardo de entrada
-* Detección de intrusión
-* Activación de sirena
-* Indicaciones mediante display OLED
-* Señalización por LEDs
-* Registro de eventos
-* Configuración mediante interfaz web (futuras versiones)
-* Notificaciones remotas (futuras versiones)
+## Librerías
 
-## Arquitectura del software
+- WiFi
+- UniversalTelegramBot
+- ArduinoJson
+- Adafruit SSD1306
+- Adafruit GFX
 
-El proyecto está organizado en módulos independientes para facilitar el mantenimiento y la reutilización del código.
-
-* Configuración
-* Logger
-* Display
-* Sensores
-* Temporizadores
-* Control de la alarma
-* Buzzer
+---
 
 ## Estado del proyecto
 
-**Versión:** 0.1.0
+Versión actual: **v0.6**
 
-Actualmente se encuentra en etapa de desarrollo, comenzando por la implementación de la arquitectura base y la lógica principal del sistema.
+### Funcionalidades implementadas
 
+- Máquina de estados
+- Display OLED
+- Buzzer
+- Relé
+- Telegram
+- FreeRTOS
+- TaskAlarm
+- TaskTelegram
+- commandQueue
+- eventQueue
+
+---
+
+## Próximas funcionalidades
+
+- Registro de eventos
+- Teclado matricial 4x4
+- RFID
+- OTA
+- MQTT
+- Home Assistant
+- Aplicación móvil
+- PCB propia
+
+## Estado del proyecto
+
+## Historial
+
+### v0.6
+- Arquitectura basada en eventos
+- commandQueue
+- eventQueue
+- Separación de comunicaciones
+
+### v0.5
+- Migración a FreeRTOS
+- TaskAlarm
+- TaskTelegram
+
+### v0.4
+- Integración con Telegram
+
+### v0.3
+- Máquina de estados
+
+### v0.2
+- Display OLED
+
+### v0.1
+- Primera versión funcional
