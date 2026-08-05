@@ -3,92 +3,113 @@
 
 void Alarm::begin()
 {
-    _state = AlarmState::Disarmed;
-    _previousState = _state;
+  _state = AlarmState::Disarmed;
+  _previousState = _state;
 }
 
 void Alarm::arm()
 {
-    _state = AlarmState::ExitDelay;
+  _state = AlarmState::ExitDelay;
 
-    _exitTimer.start(EXIT_DELAY_SEC * 1000);
+  _pendingEvent = AlarmEvent::ExitDelay;
+
+  _exitTimer.start(EXIT_DELAY_SEC * 1000);
 }
 void Alarm::disarm()
 {
-    _state = AlarmState::Disarmed;
+  _state = AlarmState::Disarmed;
+
+  _pendingEvent = AlarmEvent::Disarmed;
 }
 
 void Alarm::toggle()
 {
-    if (_state == AlarmState::Disarmed)
-        arm();
-    else
-        disarm();
+  if (_state == AlarmState::Disarmed)
+    arm();
+  else
+    disarm();
 }
 
 uint8_t Alarm::exitDelayRemaining() const
 {
-    return _exitTimer.remaining() / 1000;
+  return _exitTimer.remaining() / 1000;
 }
 
 bool Alarm::isArmed() const
 {
-    return (_state == AlarmState::Armed);
+  return (_state == AlarmState::Armed);
 }
 
 void Alarm::update()
 {
-    switch (_state)
-    {
-        case AlarmState::ExitDelay:
+  switch (_state)
+  {
+    case AlarmState::ExitDelay:
 
-            if (_exitTimer.expired())
-            {
-                _state = AlarmState::Armed;
-            }
+      if (_exitTimer.expired())
+      {
+        _state = AlarmState::Armed;
+        _pendingEvent = AlarmEvent::Armed;
+      }
 
-            break;
+      break;
 
-        default:
-            break;
-        case AlarmState::EntryDelay:
-        
-          if (_entryTimer.expired())
-         {
-            _state = AlarmState::Triggered;
-         }
+    default:
+      break;
+    case AlarmState::EntryDelay:
 
-    break;
-    }
+      if (_entryTimer.expired())
+      {
+        _state = AlarmState::Triggered;
+        _pendingEvent = AlarmEvent::Triggered;
+      }
+
+      break;
+  }
 }
+
+
 
 AlarmState Alarm::getState() const
 {
-    return _state;
+  return _state;
 }
 
 void Alarm::triggerEntryDelay()
 {
-    if (_state != AlarmState::Armed)
-        return;
+  if (_state != AlarmState::Armed)
+    return;
 
-    _state = AlarmState::EntryDelay;
+  _state = AlarmState::EntryDelay;
+  _pendingEvent = AlarmEvent::EntryDelay;
 
-    _entryTimer.start(ENTRY_DELAY_SEC * 1000);
+  _entryTimer.start(ENTRY_DELAY_SEC * 1000);
 }
+
+
+
 
 uint8_t Alarm::entryDelayRemaining() const
 {
-    return _entryTimer.remaining() / 1000;
+  return _entryTimer.remaining() / 1000;
 }
 
 bool Alarm::stateChanged()
 {
-    if (_state != _previousState)
-    {
-        _previousState = _state;
-        return true;
-    }
+  if (_state != _previousState)
+  {
+    _previousState = _state;
+    return true;
+  }
 
-    return false;
+  return false;
+}
+
+AlarmEvent Alarm::getEvent()
+{
+  AlarmEvent event = _pendingEvent;
+
+  _pendingEvent = AlarmEvent::None;
+
+  return event;
 }

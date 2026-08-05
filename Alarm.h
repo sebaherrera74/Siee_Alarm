@@ -2,6 +2,9 @@
 #define ALARM_H
 
 #include "Timmer.h"
+
+#include "AlarmEvent.h"
+
 enum class AlarmState
 {
     Disarmed,
@@ -31,6 +34,7 @@ public:
 
     void triggerEntryDelay();
     bool stateChanged();
+    AlarmEvent getEvent();
 
 
 private:
@@ -39,6 +43,7 @@ private:
     AlarmState _previousState;
     Timer _exitTimer;
     Timer _entryTimer;
+    AlarmEvent _pendingEvent = AlarmEvent::None;
     
 };
 

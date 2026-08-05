@@ -98,54 +98,45 @@ void TaskAlarm(void *pvParameters)
     // Actualizar lógica
     alarmSystem.update();
 
-    // Detectar un único cambio de estado
-    bool stateChanged = alarmSystem.stateChanged();
+    AlarmEvent event = alarmSystem.getEvent();
 
-    if (stateChanged)
+
+    if (event != AlarmEvent::None)
     {
-      switch (alarmSystem.getState())
+      xQueueSend(eventQueue, &event, 0);
+
+      switch (event)
       {
-        case AlarmState::Disarmed:{
-
-          AlarmEvent event = AlarmEvent::Disarmed;
-          xQueueSend(eventQueue, &event, 0);
-
+        case AlarmEvent::Disarmed:
           buzzer.play(BuzzerPattern::Double);
           relay.off();
           break;
-        }
-        case AlarmState::ExitDelay:{
-          AlarmEvent event = AlarmEvent::ExitDelay;
-          xQueueSend(eventQueue, &event, 0);
 
+        case AlarmEvent::ExitDelay:
           buzzer.play(BuzzerPattern::Periodic);
           relay.off();
-          break;}
+          break;
 
-        case AlarmState::Armed:{
-          AlarmEvent event = AlarmEvent::Armed;
-          xQueueSend(eventQueue, &event, 0);
-
+        case AlarmEvent::Armed:
           buzzer.stop();
           relay.off();
-          break;}
+          break;
 
-        case AlarmState::EntryDelay:{
-          AlarmEvent event = AlarmEvent::EntryDelay;
-          xQueueSend(eventQueue, &event, 0);
+        case AlarmEvent::EntryDelay:
           buzzer.stop();
           relay.off();
-          break;}
+          break;
 
-        case AlarmState::Triggered:{
-          AlarmEvent event = AlarmEvent::Triggered;
-          xQueueSend(eventQueue, &event, 0);
-
+        case AlarmEvent::Triggered:
           buzzer.stop();
           relay.on();
-          break;}
+          break;
+
+        default:
+          break;
       }
     }
+
 
     // Actualizar buzzer
     buzzer.update();
@@ -175,28 +166,7 @@ void TaskAlarm(void *pvParameters)
     }
 
 
-    //telegram.update();
-    //TelegramCommand cmd = telegram.getCommand();
 
-    /*
-
-      switch (cmd)
-      {
-       case TelegramCommand::Status:
-           telegram.sendMessage("Comando /estado recibido");
-           break;
-
-       case TelegramCommand::Arm:
-           telegram.sendMessage("Comando /armar recibido");
-           break;
-
-       case TelegramCommand::Disarm:
-           telegram.sendMessage("Comando /desarmar recibido");
-           break;
-
-       default:
-           break;
-      }*/
     vTaskDelay(1);
 
   }
@@ -248,34 +218,34 @@ void TaskTelegram(void *pvParameters)
 
     AlarmEvent event;
 
-if (xQueueReceive(eventQueue, &event, 0) == pdTRUE)
-{
-    switch (event)
+    if (xQueueReceive(eventQueue, &event, 0) == pdTRUE)
     {
+      switch (event)
+      {
         case AlarmEvent::Armed:
-            telegram.sendMessage("🟢 Alarma ARMADA");
-            break;
+          telegram.sendMessage("🟢 Alarma ARMADA");
+          break;
 
         case AlarmEvent::Disarmed:
-            telegram.sendMessage("⚪ Alarma DESARMADA");
-            break;
+          telegram.sendMessage("⚪ Alarma DESARMADA");
+          break;
 
         case AlarmEvent::ExitDelay:
-            telegram.sendMessage("🟡 Retardo de salida");
-            break;
+          telegram.sendMessage("🟡 Retardo de salida");
+          break;
 
         case AlarmEvent::EntryDelay:
-            telegram.sendMessage("🟠 Retardo de entrada");
-            break;
+          telegram.sendMessage("🟠 Retardo de entrada");
+          break;
 
         case AlarmEvent::Triggered:
-            telegram.sendMessage("🚨🚨 ALARMA DISPARADA 🚨🚨");
-            break;
+          telegram.sendMessage("🚨🚨 ALARMA DISPARADA 🚨🚨");
+          break;
 
         default:
-            break;
+          break;
+      }
     }
-}
 
     vTaskDelay(pdMS_TO_TICKS(500));
   }
